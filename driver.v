@@ -141,6 +141,8 @@ always @ (posedge P_CLK) begin
 
     end
     GAME_START: begin
+
+///////////////////////////////////////////////////////////// ball movement
         if (refresh) begin
             if (ball_dirx == 1'b1) begin // x movement
                 if (ball_posx + ball_size + ball_vx < Width)
@@ -179,14 +181,7 @@ always @ (posedge P_CLK) begin
             end
         end
 
-        if (ball_restart_flag) begin
-                ball_timer_start <= 1'b0;
-                ball_vx <= ball_vx_init;
-                ball_vy <= ball_vy_init;
-                ball_restart_flag <= 1'b0;
-                ball_restart_timer <= 25'd0;
-        end
-
+//////////////////////////////////////////////////////////////// ball-objects collisions
         if (ball_model && barl_model && ball_dirx == 1'b0) begin // left bar collision
             ball_dirx <= 1'b1;
             ball_vx <= ball_vx + 1'b1;
@@ -215,6 +210,8 @@ always @ (posedge P_CLK) begin
             score_p1 <= score_p1 + 1'b1;
             ball_timer_start <= 1'b1;
         end
+
+////////////////////////////////////////////////////////// score flag upon exceeded value
         if (score_p1 > 4'd9) begin
             p1_win <= 1'b1;
             score_p1 <= 4'd0;
@@ -223,8 +220,8 @@ always @ (posedge P_CLK) begin
             p2_win <= 1'b1;
             score_p2 <= 4'd0;
         end
-        ///////////////////
-        // time until the ball starts moving after a score
+
+////////////////////////////////////////////////////////// after-score timer
         if (!NRST)
             ball_restart_timer <= 25'd0;
         else if (ball_restart_timer >= 25'd33330000)
@@ -233,8 +230,17 @@ always @ (posedge P_CLK) begin
             ball_restart_timer <= ball_restart_timer + 1'b1;
         else
             ball_restart_timer <= 24'd0;
-    end
+    
 
+//////////////////////////////////////////////////////////// after-score timer flag
+        if (ball_restart_flag) begin
+                ball_timer_start <= 1'b0;
+                ball_vx <= ball_vx_init;
+                ball_vy <= ball_vy_init;
+                ball_restart_flag <= 1'b0;
+                ball_restart_timer <= 25'd0;
+        end
+    end
     GAME_END: begin
         if (refresh) begin
             ball_posx <= (Width - ball_size)/2;
