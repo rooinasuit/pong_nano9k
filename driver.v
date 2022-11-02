@@ -31,8 +31,8 @@ localparam VS = 2;   // vertical sync pulse
 localparam H_TOT = Width + HFP + HBP;   // horizontal pixels total
 localparam V_TOT = Height + VFP + VBP;  // vertical lines total
 
-reg [10:0] Pixels;
-reg [10:0] Lines;
+reg [10:0] Pixels; // number of pixels already generated in a given row
+reg [10:0] Lines; // number of rows already generated in a single frame cycle
 
 always @ (posedge P_CLK or negedge NRST) begin
     if (!NRST) begin
