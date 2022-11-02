@@ -1,4 +1,4 @@
-Made as a uni project.
+Implementation of classic ping-pong game on LCD screen with the use of tang nano 9k board.
 
 Author: Tomasz Gieroń
 
