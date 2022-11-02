@@ -52,7 +52,7 @@ always @ (posedge P_CLK or negedge NRST) begin
 end
 
 assign DATA_EN = ((Pixels <= H_TOT - HFP)&&(Pixels >= HBP)&&
-                  (Lines <= V_TOT - VFP)&&(Lines >= VBP));
+                  (Lines <= V_TOT - VFP)&&(Lines >= VBP)); // when data must be displayed to make it visible
 assign HSYNC = !((Pixels >= HS)&&(Pixels <= H_TOT));
 assign VSYNC = !((Lines >= VS)&&(Lines <= V_TOT));
 
