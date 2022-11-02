@@ -13,9 +13,9 @@ always @ (posedge CLK) begin
     if (!NRST)
         data_out <= 10'd0;
     else if (CLK_EN)
-        data_out <= {data_out[8:0], key_in};
+        data_out <= {data_out[8:0], key_in}; // shift register action
 end
 
-assign key_out = (&data_out[9:0]);
+assign key_out = (&data_out[9:0]); // 60Hz from CLK_EN to activate all 10 bits of data_out register upon button press
 
 endmodule

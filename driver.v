@@ -15,7 +15,7 @@ module driver (
 );
 
 /////////////////////////
-// LCD driver
+// SCREEN DISPLAY CONTROL
 
 localparam Width = 800;
 localparam Height = 480;
@@ -56,9 +56,9 @@ assign DATA_EN = ((Pixels <= H_TOT - HFP)&&(Pixels >= HBP)&&
 assign HSYNC = !((Pixels >= HS)&&(Pixels <= H_TOT));
 assign VSYNC = !((Lines >= VS)&&(Lines <= V_TOT));
 
-reg refresh;
+reg refresh; // flag for every finished screen frame
 
-always @ (*) begin
+always @ (*) begin 
     if ((Lines == Height + VBP)&&(Pixels == 0))
         refresh <= 1'b1;
     else
@@ -66,7 +66,7 @@ always @ (*) begin
 end
 
 ////////////////////////
-// state machine
+// STATE MACHINE
 
 reg [1:0] state = RESET;
 
@@ -94,9 +94,8 @@ always @ (posedge P_CLK) begin
     endcase
 end
 
-
 ////////////////////////////////////
-// ball movement
+// BALL MOVEMENT
 
 localparam ball_size = 20;
 localparam ball_vx_init = 2;
@@ -142,7 +141,7 @@ always @ (posedge P_CLK) begin
     end
     GAME_START: begin
 
-///////////////////////////////////////////////////////////// ball movement
+///////////////////////////////////////////////////////////// sole ball movement
         if (refresh) begin
             if (ball_dirx == 1'b1) begin // x movement
                 if (ball_posx + ball_size + ball_vx < Width)
@@ -181,7 +180,8 @@ always @ (posedge P_CLK) begin
             end
         end
 
-//////////////////////////////////////////////////////////////// ball-objects collisions
+//////////////////////////////////////////////////////////////// ball-object collisions
+
         if (ball_model && barl_model && ball_dirx == 1'b0) begin // left bar collision
             ball_dirx <= 1'b1;
             ball_vx <= ball_vx + 1'b1;
@@ -212,6 +212,7 @@ always @ (posedge P_CLK) begin
         end
 
 ////////////////////////////////////////////////////////// score flag upon exceeded value
+
         if (score_p1 > 4'd9) begin
             p1_win <= 1'b1;
             score_p1 <= 4'd0;
@@ -222,6 +223,7 @@ always @ (posedge P_CLK) begin
         end
 
 ////////////////////////////////////////////////////////// after-score timer
+
         if (!NRST)
             ball_restart_timer <= 25'd0;
         else if (ball_restart_timer >= 25'd33330000)
@@ -233,6 +235,7 @@ always @ (posedge P_CLK) begin
     
 
 //////////////////////////////////////////////////////////// after-score timer flag
+
         if (ball_restart_flag) begin
                 ball_timer_start <= 1'b0;
                 ball_vx <= ball_vx_init;
@@ -259,7 +262,7 @@ always @ (posedge P_CLK) begin
 end
 
 //////////////////////////
-// bar movement
+// BARS MOVEMENT
 
 localparam bar_speed = 5;
 localparam bar_height = 100;
@@ -325,7 +328,7 @@ always @ (posedge P_CLK) begin // player 2
 end
 
 //////////////////////////
-// player score display
+// SCORE DIGITS / PLAYER SCORE DISPLAY
 
 wire [0:7] digit_data; // inverted data read (left to right)
 wire [7:0] digit_addr;
@@ -351,10 +354,10 @@ assign digit_addr = {char_addr, current_row_addr}; // concatenation of the char 
                                                    // and the row address 7'hx[x] to select
                                                    // the desired row of digits for display
 
-assign bit_display = digit_data[bit_inrow_addr];
+assign bit_display = digit_data[bit_inrow_addr]; // current bit of 8x16 digit being drawn
 
 ///////////////////////////
-// drawing models on lcd
+// DISPLAY SHAPES
 
 wire ball_model;
 
@@ -378,45 +381,45 @@ assign p2_digit_area = (Pixels < Width + HBP - 24)&&(Pixels >= (Width + HBP - 40
                         &&(Lines < 64 + VBP)&&(Lines >= 32 + VBP);
 
 always @ (posedge P_CLK) begin
-    if (state == GAME_START) begin
+    if (state == GAME_START) begin // for game_start state
         if (ball_model) begin // ball
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b10000;
         end
-        else if (barl_model || barr_model) begin // ball
+        else if (barl_model || barr_model) begin // bars
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b10000;
         end
-        else if ((p1_digit_area || p2_digit_area) && bit_display) begin
+        else if ((p1_digit_area || p2_digit_area) && bit_display) begin // score
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b10000;
         end
-        else begin
-            color_red <= 5'b00000;
+        else begin // background
+            color_red <= 5'b00000; 
             color_green <= 6'b000000;
             color_blue <= 5'b00000;
         end
     end
-    else if (state == GAME_END) begin
+    else if (state == GAME_END) begin // for game_end state
         if (ball_model) begin // ball
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b00000;
         end
-        else if (barl_model || barr_model) begin // ball
+        else if (barl_model || barr_model) begin // bars
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b00000;
         end
-        else if ((p1_digit_area || p2_digit_area) && bit_display) begin
+        else if ((p1_digit_area || p2_digit_area) && bit_display) begin // score
             color_red <= 5'b10000;
             color_green <= 6'b100000;
             color_blue <= 5'b00000;
         end
-        else begin
+        else begin // background
             color_red <= 5'b00000;
             color_green <= 6'b000000;
             color_blue <= 5'b00000;

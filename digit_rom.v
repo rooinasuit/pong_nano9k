@@ -6,7 +6,7 @@ module digit_rom(
 
    reg [7:0] addr_reg; 
 
-   always @(posedge P_CLK) 
+   always @(posedge P_CLK) // synchronizing address input
       addr_reg <= rom_addr;
       
    always @ (*)

@@ -24,7 +24,7 @@ wire b3_deb;
 wire b4_deb;
 wire b5_deb;
 
-Gowin_rPLL PLL(
+Gowin_rPLL PLL( // ip core of GOWIN IDE
         .clkout (CLK_400),
         .clkoutd(P_CLK), //output clkoutd
         .clkin(CLK) //input clkin
